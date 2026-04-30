@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Stream - {{ stream_id }}</title>
+    <style>
+        video {
+            border: 2px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <video id="videoPlayer" autoplay playsinline controls></video>
+
+    <script>
+        // 获取视频元素
+        const video = document.getElementById('videoPlayer');
+        // 定义 RTCPeerConnection 变量
+        let peerConnection;
+
+        // 初始化 WebRTC 连接
+        async function initWebRTC() {
+            try {
+                // 配置 STUN 服务器
+                const config = {
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' }
+                    ]
+                };
+
+                // 创建 RTCPeerConnection 实例
+                peerConnection = new RTCPeerConnection(config);
+
+                // 监听 track 事件，接收远程媒体流
+                peerConnection.ontrack = (event) => {
+                    if (event.streams && event.streams[0]) {
+                        // 将远程媒体流绑定到视频元素
+                        video.srcObject = event.streams[0];
+                        video.play().catch(e => console.warn('Auto-play failed:', e));
+                    }
+                };
+
+                // 创建 offer
+                const offer = await peerConnection.createOffer({
+                    offerToReceiveAudio: false,
+                    offerToReceiveVideo: true
+                });
+
+                // 设置本地描述
+                await peerConnection.setLocalDescription(offer);
+
+                // 等待 ICE 候选收集完成
+                await new Promise((resolve) => {
+                    const checkState = () => {
+                        if (peerConnection.iceGatheringState === 'complete') {
+                            resolve();
+                        } else {
+                            setTimeout(checkState, 100);
+                        }
+                    };
+                    setTimeout(resolve, 2000);
+                    checkState();
+                });
+
+                // 发送 offer 到Flask服务器，获取 answer
+                const response = await fetch('/api/webrtc/whep', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/sdp'
+                    },
+                    body: peerConnection.localDescription.sdp
+                });
+
+                // 检查响应状态
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`WHEP request failed: ${response.status} ${errorText}`);
+                }
+
+                // 获取 go2rtc 返回的 answer SDP
+                const answerSdp = await response.text();
+
+                // 设置将 answer SDP 设置为远程描述，完成握手
+                await peerConnection.setRemoteDescription({
+                    type: 'answer',
+                    sdp: answerSdp
+                });
+
+            } catch (error) {
+                console.error('WebRTC init failed:', error);
+            }
+        }
+
+        initWebRTC();
+    </script>
+</body>
+</html>
