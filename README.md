@@ -112,8 +112,8 @@ http://localhost:1984
 
 更多接口参考[go2rtc接口文档](https://go2rtc.org/api)
 
-> [!NOTE] 注意
 > 接口使用查询参数操作，不支持JSON请求体
+> 
 > 更新流示例：curl -X PUT "<http://localhost:1984/api/streams?src=rtsp://192.168.0.180/ch1&name=device_1>"
 
 ---
@@ -128,7 +128,7 @@ sequenceDiagram
 
     Note over Browser: 1. 创建 RTCPeerConnection<br/>2. 生成 SDP Offer<br/>3. 收集 ICE 候选
 
-    Browser->>Flask: POST /api/webrtc<br/>(携带 SDP Offer)
+    Browser->>Flask: POST /api/webrtc/whep<br/>(携带 SDP Offer)
     Flask->>Go2rtc: POST /api/webrtc?src=xxx<br/>(转发 SDP Offer)
     Go2rtc-->>Flask: SDP Answer
     Flask-->>Browser: 返回 SDP Answer
@@ -163,13 +163,9 @@ pdm run app.py
 
 
 
-## Docker Compose 部署（推荐）
-
-本项目支持通过 Docker Compose 一键部署 Flask 应用 和 go2rtc，适用于局域网环境。
+## Docker Compose 部署
 
 ### 1. 修改配置文件
-
-部署前，请根据实际环境修改以下配置：
 
 #### go2rtc.yaml
 ```yaml
