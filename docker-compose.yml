@@ -1,0 +1,26 @@
+services:
+  go2rtc:
+    image: alexxit/go2rtc:latest
+    container_name: go2rtc
+    restart: unless-stopped
+    ports:
+      - "1984:1984"
+      - "8554:8554"
+      - "8555:8555/tcp"
+      - "8555:8555/udp"
+    volumes:
+      - ./go2rtc.yaml:/config/go2rtc.yaml
+    environment:
+      - TZ=Asia/Shanghai
+
+  flask:
+    build: .
+    container_name: flask_go2rtc
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    environment:
+      - GO2RTC_API_URL=http://go2rtc:1984
+      - TZ=Asia/Shanghai
+    depends_on:
+      - go2rtc

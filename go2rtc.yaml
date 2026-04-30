@@ -1,0 +1,21 @@
+# go2rtc 配置文件
+# 文档参考: https://go2rtc.org/
+
+streams:
+  # 摄像头 RTSP 流地址，请根据实际情况修改
+  device_1: rtsp://192.168.0.180/ch2
+
+api:
+  listen: ":1984"
+
+webrtc:
+  listen: ":8555"
+  # 局域网候选地址，必须设置为宿主机实际局域网 IP
+  # 这样浏览器才能通过宿主机的 8555 端口与 go2rtc 建立 WebRTC 连接
+  candidates:
+    - 192.168.0.19:8555
+  ice_servers:
+    - urls: [ "stun:stun.l.google.com:19302" ]
+  # 过滤掉 Docker 内部网络候选，避免浏览器尝试连接不可达的地址
+  filters:
+    candidates: [192.168.0.19]
