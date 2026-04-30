@@ -1,7 +1,7 @@
 # flask go2rtc 最小项目模板
 
 ## 项目介绍
-本项目利用 [go2rtc](www.go2rtc.org) 将摄像机的 RTSP 流转换为 WebRTC 格式，解决 RTSP 流在网页中的播放问题。
+本项目利用 [go2rtc](https://go2rtc.org/) 将摄像机的 RTSP 流转换为 WebRTC 格式，解决 RTSP 流在网页中的播放问题。
 
 ## 项目结构
 
@@ -79,7 +79,7 @@ go2rtc 默认运行在 1984 端口
 http://localhost:1984
 ```
 
-可以通过 http://localhost:1984/api/streams 修改配置文件
+可以通过 `http://localhost:1984/api/streams` 修改配置文件
 
 
 
@@ -92,8 +92,8 @@ http://localhost:1984
 
 |参数名|描述|类型|示例|
 |---|---|---|---|
-|name|名称|string|src=rtsp://rtsp:12345678@192.168.1.123/av_stream/ch0
-|src|流路径|string|name=camera1|
+|src|流路径|string|src=rtsp://rtsp:12345678@192.168.1.123/av_stream/ch0
+|name|路径标识|string|name=camera1|
 
 [Create new stream - API](https://go2rtc.org/api/#tag/Streams-list/paths/~1api~1streams/put)
 
@@ -106,7 +106,7 @@ http://localhost:1984
 
 |参数名|描述|类型|示例|
 |---|---|---|---|
-|src|名称|string|src=camera1|
+|src|路径标识|string|src=camera1|
 
 [Delete stream - API](https://go2rtc.org/api/#tag/Streams-list/paths/~1api~1streams/delete)
 
@@ -114,7 +114,7 @@ http://localhost:1984
 
 > 接口使用查询参数操作，不支持JSON请求体
 > 
-> 更新流示例：curl -X PUT "<http://localhost:1984/api/streams?src=rtsp://192.168.0.180/ch1&name=device_1>"
+> 更新流示例：`curl -X PUT "<http://localhost:1984/api/streams?src=rtsp://192.168.0.180/ch1&name=device_1>"`
 
 ---
 
@@ -170,7 +170,7 @@ pdm run app.py
 #### go2rtc.yaml
 ```yaml
 streams:
-  device_1: rtsp://192.168.0.180/ch2   # 修改为你的摄像头 RTSP 地址
+  device_1: rtsp://192.168.0.180/ch2
 
 webrtc:
   listen: ":8555"
